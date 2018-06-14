@@ -188,7 +188,7 @@ class CirceSpec extends JawnDecodeSupportSpec[Json] {
       *
       */
     "decode string as json if CirceEntityDecoder is in scope" in {
-      import org.http4s.circe.CirceEntityDecoder._
+      import org.http4s.circe.CirceEntityDecoder.circeEntityDecoder
       val string = "\"bar\""
       val request = Request[IO]().withEntity(Json.fromString(string))
       val result = request.attemptAs[String]
