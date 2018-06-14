@@ -176,6 +176,24 @@ class CirceSpec extends JawnDecodeSupportSpec[Json] {
       val result = request.attemptAs[Foo]
       result.value.unsafeRunSync must_== Right(Foo(42))
     }
+
+    /***
+      * [error] /home/leammas/http4s/circe/src/test/scala/org/http4s/circe/CirceSpec.scala:184:37: ambiguous implicit values:
+      * [error]  both method text in trait EntityDecoderInstances of type [F[_]](implicit evidence$8: cats.effect.Sync[F], implicit defaultCharset: org.http4s.Charset)org.http4s.EntityDecoder[F,String]
+      * [error]  and method circeEntityDecoder in trait CirceEntityDecoder of type [F[_], A](implicit evidence$1: cats.effect.Sync[F], implicit evidence$2: io.circe.Decoder[A])org.http4s.EntityDecoder[F,A]
+      * [error]  match expected type org.http4s.EntityDecoder[cats.effect.IO,String]
+      * [error]       val result = request.attemptAs[String]
+      * [error]                                     ^
+      * [error] one error found
+      *
+      */
+    "decode string as json if CirceEntityDecoder is in scope" in {
+      import org.http4s.circe.CirceEntityDecoder._
+      val string = "\"bar\""
+      val request = Request[IO]().withEntity(Json.fromString(string))
+      val result = request.attemptAs[String]
+      result.value.unsafeRunSync must_== Right(string)
+    }
   }
 
   checkAll("EntityCodec[IO, Json]", EntityCodecTests[IO, Json].entityCodec)
